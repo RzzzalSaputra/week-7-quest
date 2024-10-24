@@ -1,5 +1,6 @@
 const fs = require("node:fs")
 const readline = require('node:readline');
+const path = require('path')
 
 const rl = readline.createInterface({
   input: process.stdin,
@@ -51,6 +52,55 @@ app.makeFile = () =>{
     })
 }
 
+app.extSorter = () =>{
+    fs.readdir('./unorganize_folder/', (err, file)=>{
+        if(err){
+            console.log(err)
+        }else{
+                // Akses Setiap File Array
+                file.forEach((f)=>{
+                    // Direktori File
+                    if(path.parse(f).ext !== ``){
+                    const nameFolder = path.parse(f).ext.slice(1);
+                    const currPath = `./unorganize_folder/${f}`
+                    const newPath = `./${nameFolder}/${f}`
+
+                    // Buat Folder
+                    fs.mkdir(__dirname + `/${nameFolder}`,() => {
+                        console.log(`Berhasil Buat Folder ${nameFolder}`);
+                    });
+                    
+                    // Rename Path File
+                    fs.rename(currPath, newPath, (err)=>{
+                        if(err){
+                            console.log(err)
+                        }else{
+                            console.log(`File ${f} Telah Berhasil Dipindahkan Ke Folder ${nameFolder}`)
+                        }
+                    });
+                    }else{
+                        const currPath = `./unorganize_folder/${f}`
+                        const newPath = `./unknown/${f}`
+
+                        // Buat Folder
+                        fs.mkdir(__dirname + `/unknown`,() => {
+                            console.log(`Berhasil Buat Folder unknown`);
+                        });
+                        
+                        // Rename Path File
+                        fs.rename(currPath, newPath, (err)=>{
+                            if(err){
+                                console.log(err)
+                            }else{
+                                console.log(`File ${f} Telah Berhasil Dipindahkan Ke Folder unknown`)
+                            }
+                        });
+                    }
+            })
+        }
+    })
+    rl.close();
+}
 // To Do : lanjutkan pembuatan logic disini 
 
 
