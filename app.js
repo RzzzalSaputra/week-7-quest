@@ -12,7 +12,7 @@ const app = {}
 
 // Fungsi Cek Extensi File
 function extenFile(f){
-    let namaExtensi = {"txt": "Text", "md": "MarkDown", "png": "Gambar", "jpg": "Gambar"};
+    let namaExtensi = {"txt": "Text", "md": "MarkDown", "png": "Image", "jpg": "Image"};
     let EXT = f.slice(1);
     if(namaExtensi[EXT]){
         return namaExtensi[EXT]
@@ -21,8 +21,20 @@ function extenFile(f){
     }
 }
 
+// Fungsi Untuk Membaca Isi File
+function read(folderName, element){
+    fs.readFile(`./${folderName}/${element}`, `utf8`, (err, data) => {
+        if (err) {
+            return err;
+        }else{
+            console.log(`\n>>Isi Dari File ${element}<< \n\n ${data} \n`);
+            return data;
+        }
+    });
+}
+
 // contoh script pembuatan folder
- app.makeFolder = () => {
+app.makeFolder = () => {
     rl.question("Masukan Nama Folder : ",(folderName) => {
         fs.mkdir(__dirname + `/${folderName}`,() => {
             console.log("success created new folder");
@@ -128,17 +140,25 @@ app.extSorter = () =>{
 // Membaca Isi Folder
 app.readFolder = () => {
     let temp = [];
+
+    // Tanya Folder Yang Ingin Dibaca Isinya
     rl.question("Masukan Nama Folder : ",(folderName) => {
         fs.readdir(`./${folderName}/`, (err, file)=>{
             if(err){
                 console.log(err)
             }else{
+
+                // Mengakses Array file Yang Berisi Nama File
                 for (let index = 0; index < file.length; index++) {
                     const element = file[index];
                     try {
+
+                        // Menggunkan Stat Untuk Mengakses Data Sebuah File
                         const stat = fs.statSync(`./${folderName}/${element}`);
+
+                        // Push Data Yang Dipilih Ke Dalam temp Array
                         temp.push({
-                            nama: element,
+                            namaFile: element,
                             extensi: path.extname(element),
                             jenisFile: extenFile(path.parse(file[index]).ext),
                             tanggalDibuat: stat.birthtime.toString(),
@@ -148,12 +168,47 @@ app.readFolder = () => {
                         console.log(error);
                     }
                 }
+                // Tampilkan Data Yang Ada Di Temp Ke Bentuk JSON
                 console.log(JSON.stringify(temp, null, 2));
             }
         })
         rl.close()
     })
-} 
+}
+
+// Membaca Isi File
+app.readFile = ()=>{
+
+    // Tanya Folder Yang File Nya Ingin Dibaca Isinya
+    rl.question("Masukan Nama Folder : ",(folderName) => {
+    fs.readdir(__dirname + `/${folderName}`,(err,file) => {
+        if(err){
+            console.log(err)
+        }else{
+
+             //Mengakses Array file Yang Berisi Nama File
+            for (let index = 0; index < file.length; index++) {
+                const element = file[index];
+                
+                //Jika Extensinya Text 
+                if(path.parse(element).ext == `.txt`){
+
+                    // Panggil Fungsi Read
+                    read(folderName,element)
+
+                // Jika Extensinya MarkDown
+                }else if(path.parse(element).ext == `.md`){
+
+                    // Panggil Fungsi Read
+                    read(folderName,element)
+                }
+                
+            }
+        }
+        })
+        rl.close()
+    })
+}
 // To Do : lanjutkan pembuatan logic disini 
 
 
